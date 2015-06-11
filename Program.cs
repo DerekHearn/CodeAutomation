@@ -12,18 +12,21 @@ namespace CodeAutomation
 		{
 			//looks at the services in Service.svc.cs and pulls up a list of all 
 			// publicilly usable params
-			new LookAtServices().work();
+			//new LookAtServices().work();
 
 			//will open up a txt file with generated code
-			//BuildStructs.buildStructsFromBL(
-			//	//struct name
-			//	"GetWebMBResult", 
-			//	//sourceFile
-			//	"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetWebMBResult.cs");
+			BuildStructs.buildStructsFromBL(
+				//struct name
+				"LiveBroadcastBroadcasterStruct",
+				//sourceFile
+				"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetEventStruct.cs");
 
-			//pull up txt file with generated code for datasetPulled within getDataSet
-			//Please change the stored procedure there
-			//StoredProcedure.getDataSet();
+			//will open up a txt file with generated code
+			BuildStructs.buildStructsFromBL(
+				//struct name
+				"GetLiveBroadcastStruct",
+				//sourceFile
+				"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetEventStruct.cs");
 		}
 	}
 }

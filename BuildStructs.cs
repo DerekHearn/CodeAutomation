@@ -13,9 +13,12 @@ namespace CodeAutomation
 		public static void buildStructsFromBL(string structName, string sourceFile)
 		{
 			var sb = new StringBuilder();
-			var searchingFor = "public struct " + structName;
-
+			
 			var s = new Struct(structName);
+
+			var dataContract = File.ReadAllText("C:/Users/Devin/Documents/GitHub/APPI.Services/Results/DataContract.cs");
+
+			var searchingFor = "public struct " + structName;
 
 			using (var streamReader = File.OpenText(sourceFile))
 			{
@@ -40,7 +43,7 @@ namespace CodeAutomation
 								if (!line.Contains(';'))
 									break;
 								//found a member
-								var m = Member.extractMember(line);
+								var m = Member.extractMember(line, dataContract);
 								s.members.Add(m);
 							}
 						}
@@ -74,7 +77,7 @@ namespace CodeAutomation
 			public Struct(string name)
 			{
 				members = new List<Member>();
-				this.name = name;
+				this.name = name.Replace("Struct", "Result");
 				this.origionalName = name;
 			}
 
@@ -150,8 +153,21 @@ namespace CodeAutomation
 
 				for (int i = 0; i < members.Count; i++)
 				{
-					sb.Append("item.");
-					sb.Append(members[i].origionalName);
+					if (members[i].isArray)
+					{
+						var str = members[i].type;
+						str = str.Substring(0, str.Length - 2);
+						sb.Append(str);
+						sb.Append(".cast(");
+						sb.Append("item.");
+						sb.Append(members[i].origionalName);
+						sb.Append(")");
+					}
+					else
+					{
+						sb.Append("item.");
+						sb.Append(members[i].origionalName);
+					}
 					if (i + 1 < members.Count)
 						sb.Append(", ");
 				}
@@ -180,9 +196,9 @@ namespace CodeAutomation
 
 				sb.Append("\tpublic static ");
 				sb.Append(name);
-				sb.Append(" cast (Meetball.Structs.");
+				sb.Append("[] cast (Meetball.Structs.");
 				sb.Append(origionalName);
-				sb.Append(" items[])");
+				sb.Append("[] items)");
 				sb.Append(Environment.NewLine);
 				sb.Append("\t{");
 				sb.Append(Environment.NewLine);
@@ -215,13 +231,32 @@ namespace CodeAutomation
 		{
 			public string origionalName;
 			public string type;
+			public string origionalType;
 			public string name;
+			public bool isArray;
 
-			public Member(string type, string origionalName)
+			public Member(string type, string origionalName, string dataContract)
 			{
-				this.type = type;
-				this.name = origionalName;
+				this.type = type.Replace("Struct", "Result"); ;
+				this.origionalType = type;
+				this.name = Char.ToUpper(origionalName[0]) + origionalName.Substring(1);
+				this.name = this.name.Replace("Struct", "Result");
+
+				//Now I think this is pretty neat
+				//We don't know how to properly format things like GPXWKT
+				//So we check the datacontract to see if something else spelled the same exists
+				//if it does we'll just use the style of that
+				//Oh and we add the space before the name so that we ensure that we didn't find 
+				//some middle part of something else. That format wouldn't be useful at all.
+				var index = dataContract.IndexOf(" " + this.name, StringComparison.InvariantCultureIgnoreCase);
+				if (index != -1)
+					this.name = dataContract.Substring(index+1, this.name.Length);
+
 				this.origionalName = origionalName;
+				if(type.Contains("[]"))
+				{
+					isArray = true;
+				}
 			}
 
 			public string toCSharp()
@@ -238,7 +273,7 @@ namespace CodeAutomation
 				return sb.ToString();
 			}
 
-			public static Member extractMember(string line)
+			public static Member extractMember(string line, string dataContract)
 			{
 				//\t\tpublic_type_name;
 				string type = "";
@@ -306,7 +341,7 @@ namespace CodeAutomation
 					}
 				}
 
-				return new Member(type, name);
+				return new Member(type, name, dataContract);
 			}
 		}
 		

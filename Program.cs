@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DBDataAccess;
+using System.IO;
+using System.Diagnostics;
 
 namespace CodeAutomation
 {
@@ -15,18 +18,21 @@ namespace CodeAutomation
 			//new LookAtServices().work();
 
 			//will open up a txt file with generated code
-			BuildStructs.buildStructsFromBL(
-				//struct name
-				"LiveBroadcastBroadcasterStruct",
-				//sourceFile
-				"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetEventStruct.cs");
+			//BuildStructs.buildStructsFromBL(
+			//	//struct name
+			//	"LiveBroadcastBroadcasterStruct",
+			//	//sourceFile
+			//	"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetEventStruct.cs");
 
 			//will open up a txt file with generated code
-			BuildStructs.buildStructsFromBL(
-				//struct name
-				"GetLiveBroadcastStruct",
-				//sourceFile
-				"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetEventStruct.cs");
+			//BuildStructs.buildStructsFromBL(
+			//	//struct name
+			//	"GetLiveBroadcastStruct",
+			//	//sourceFile
+			//	"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetEventStruct.cs");
+
+			//opens up text files with 
+			new LookAtServices().lookAtServiceDurations();
 		}
 	}
 }

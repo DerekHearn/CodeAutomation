@@ -28,6 +28,11 @@ namespace CodeAutomation
 			Process.Start(file);
 		}
 
+		public void lookAtServiceDurations()
+		{
+			DurationsToText(GetDurations(100));
+		}
+
 		/// <summary>
 		/// Key of dictionary is a key value pair of type and param name
 		/// the values represent number of times that unique value pair was found
@@ -149,6 +154,146 @@ namespace CodeAutomation
 			}
 
 			return sb.ToString();
+		}
+
+		private Dictionary<String, List<double>> GetDurations(int fromXDaysAgo)
+		{
+			var utcNow = DateTime.UtcNow;
+			var dictAll = new Dictionary<String, List<double>>();
+			var tasks = new Task<Dictionary<String, List<double>>>[fromXDaysAgo];
+
+			for (int i = 0; i < fromXDaysAgo; i++)
+			{
+				var tmp = i;
+				var afewweeksago = utcNow.AddDays(-(i + 1));
+				var limit = utcNow.AddDays(-i);
+				tasks[i] = Task<Dictionary<String, List<double>>>.Factory.StartNew(() =>
+				{
+					try
+					{
+						Console.WriteLine("{0} started  the DB call", Task.CurrentId);
+						var result = DBDataAccess.MethodLog
+						.Find(x => x.CallDate > afewweeksago && x.CallDate < limit)
+						.OrderBy(x => x.Duration).ToArray();
+
+						var dict = new Dictionary<String, List<double>>();
+						for (int j = 0; j < result.Length; j++)
+						{
+							if (dict.ContainsKey(result[j].MethodLogName))
+							{
+								dict[result[j].MethodLogName].Add(result[j].Duration.Value);
+							}
+							else
+							{
+								var list = new List<double>();
+								list.Add(result[j].Duration.Value);
+								dict.Add(result[j].MethodLogName, list);
+							}
+						}
+
+						return dict;
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine("{0} had an exception", Task.CurrentId);
+						return new Dictionary<string, List<double>>();
+
+					}
+				});
+
+			}
+
+			while (tasks.Length > 0)
+			{
+				int index = 0;
+
+				index = Task.WaitAny(tasks);
+
+				Console.WriteLine("Task {0} finished", tasks[index].Id);
+
+				var dict = tasks[index].Result;
+				var keys = dict.Keys.ToArray();
+
+				if (tasks[index].Exception != null)
+					Console.WriteLine(tasks[index].Exception.InnerException.Message);
+
+				for (int i = 0; i < keys.Length; i++)
+				{
+					if (dictAll.ContainsKey(keys[i]))
+					{
+						dictAll[keys[i]].AddRange(dict[keys[i]]);
+					}
+					else
+					{
+						dictAll.Add(keys[i], dict[keys[i]]);
+					}
+				}
+
+				var temp = new Task<Dictionary<string, List<double>>>[tasks.Length - 1];
+				var counter = 0;
+				for (int i = 0; i < tasks.Length; i++)
+				{
+					if (i != index)
+					{
+						temp[counter++] = tasks[i];
+					}
+				}
+				tasks = temp;
+			}
+
+			return dictAll;
+		}
+
+		private void DurationsToText(Dictionary<String, List<double>> dict)
+		{
+			var list2 = new List<KeyValuePair<string, KeyValuePair<double, int>>>();
+
+			foreach (string key in dict.Keys)
+			{
+				double mean = dict[key]
+					.OrderBy(x=> x).ToArray()
+					[(int)(dict[key].Count / 2)];
+
+				list2.Add(new KeyValuePair<string, KeyValuePair<double, int>>(
+					key, 
+					new KeyValuePair<double, int>(
+						mean,
+						dict[key].Count)));
+				
+			}
+
+			var sb = new StringBuilder();
+
+			var array = list2.OrderBy(x => x.Value.Key).ToArray();
+			var s = "Order by mean Duration";
+			sb.Append(s);
+			Console.Write(s);
+			for (int i = 0; i < array.Length; i++)
+			{
+				s = String.Format("\n{0} - {1} - {2}", array[i].Key, array[i].Value.Key, array[i].Value.Value);
+				sb.Append(s);
+				Console.Write(s);
+			}
+
+			var durationMean = Environment.CurrentDirectory + "\\durationMean.txt";
+			File.WriteAllText(durationMean, sb.ToString().Replace("\n", Environment.NewLine));
+			Process.Start(durationMean);
+			sb.Clear();
+
+			s = "Order by call amount";
+			sb.Append(s);
+			Console.Write("\n" + s);
+			array = list2.OrderBy(x => x.Value.Value).ToArray();
+			for (int i = 0; i < array.Length; i++)
+			{
+				s = String.Format("\n{0} - {1} - {2}", array[i].Key, array[i].Value.Key, array[i].Value.Value);
+				sb.Append(s);
+				Console.Write(s);
+			}
+
+			var callRyou = Environment.CurrentDirectory + "\\callRyou.txt";
+			File.WriteAllText(callRyou, sb.ToString().Replace("\n", Environment.NewLine));
+			Process.Start(callRyou);
 		}
 	}
 }

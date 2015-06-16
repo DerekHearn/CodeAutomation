@@ -57,6 +57,7 @@
       <HintPath>..\APPI.Services\ExternalDlls\SubSonic.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -72,22 +73,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Content Include="Web.config">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
-    <Content Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-      <SubType>Designer</SubType>
-    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\APPI.Services\APPI.Services.csproj">
       <Project>{1d7c8759-1f64-4d09-b86a-67d1eacb4255}</Project>
       <Name>APPI.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DBDataAccess\DBDataAccess.csproj">
+      <Project>{7f956337-81fe-4632-b328-8562b398cf56}</Project>
+      <Name>DBDataAccess</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

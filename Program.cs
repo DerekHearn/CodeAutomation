@@ -18,21 +18,21 @@ namespace CodeAutomation
 			//new LookAtServices().work();
 
 			//will open up a txt file with generated code
-			//BuildStructs.buildStructsFromBL(
-			//	//struct name
-			//	"LiveBroadcastBroadcasterStruct",
-			//	//sourceFile
-			//	"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetEventStruct.cs");
-
+			BuildStructs.buildStructsFromBL(
+				//struct name
+				"VenueType",
+				//sourceFile
+				"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/Venue.cs");
+			
 			//will open up a txt file with generated code
 			//BuildStructs.buildStructsFromBL(
 			//	//struct name
-			//	"GetLiveBroadcastStruct",
+			//	"UserInfoStruct",
 			//	//sourceFile
-			//	"C:/Users/Devin/Documents/GitHub/APPI.Meetball/Structs/GetEventStruct.cs");
+			//	"C:/Users/Devin/Documents/GitHub/APPI.Meetball/AppUser/UserInfoStruct.cs");
 
 			//opens up text files with 
-			new LookAtServices().lookAtServiceDurations();
+			//new LookAtServices().lookAtServiceDurations();
 		}
 	}
 }

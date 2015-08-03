@@ -18,7 +18,7 @@ namespace CodeAutomation
 
 			var dataContract = File.ReadAllText("C:/Users/Devin/Documents/GitHub/APPI.Services/Results/DataContract.cs");
 
-			var searchingFor = "public struct " + structName;
+			var namePlusSpace = " " + structName;
 
 			using (var streamReader = File.OpenText(sourceFile))
 			{
@@ -50,16 +50,30 @@ namespace CodeAutomation
 					}
 					else
 					{
-						if (line.Contains(searchingFor))
+						if (line.Contains(namePlusSpace))
 						{
-							//found the public struct [structName]
-							foundStruct = true;
+							if (line.Contains("public"))
+							{
+								if (line.Contains("struct"))
+								{
+									//found the public struct [structName]
+									foundStruct = true;
+								}
+								else
+								{
+									throw new Exception(
+										String.Format("Our \"class\" {0} isn't a struct...", structName));
+								}
+							}
+							else
+							{
+								throw new Exception(
+									String.Format("Our struct {0} isn't public...", structName));
+							}
 						}
 					}
 				}
 			}
-
-
 
 			var file = "C:/Users/Devin/Desktop/stuff/structBuilder_tmp.txt";
 
